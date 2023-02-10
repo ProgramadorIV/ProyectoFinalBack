@@ -1,4 +1,4 @@
-package com.example.proyectofinal.error;
+package com.salesianos.socialrides.error;
 
 public class GlobalRestControllerAdvice {
 }
