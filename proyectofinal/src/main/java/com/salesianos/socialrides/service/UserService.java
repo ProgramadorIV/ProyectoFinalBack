@@ -41,4 +41,16 @@ public class UserService {
     public User createUserWithAdminRole(CreateUserRequest createUserRequest){
         return createUser(createUserRequest, EnumSet.of(UserRole.ADMIN));
     }
+
+    public Optional<User> editPassword(UUID userId, String newPassword){
+        return userRepository.findById(userId)
+                .map( user -> {
+                    user.setPassword(passwordEncoder.encode((newPassword)));
+                    return userRepository.save(user);
+                }).or(()-> Optional.empty());
+    }
+
+    public boolean passwordMatch(User user, String password){
+        return passwordEncoder.matches(password, user.getPassword());
+    }
 }

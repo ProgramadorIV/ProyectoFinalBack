@@ -2,6 +2,7 @@ package com.salesianos.socialrides.security;
 
 import com.salesianos.socialrides.security.errorhandling.JwtAccessDeniedHandler;
 import com.salesianos.socialrides.security.errorhandling.JwtAuthenticationEntryPoint;
+import com.salesianos.socialrides.security.jwt.access.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,15 +30,12 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        AuthenticationManager authenticationManager =
-                authenticationManagerBuilder.authenticationProvider(authenticationProvider()).build();
-
-        return authenticationManager;
+        return authenticationManagerBuilder.authenticationProvider(authenticationProvider()).build();
     }
 
     @Bean
@@ -45,6 +44,7 @@ public class SecurityConfig {
 
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
+        authenticationProvider.setHideUserNotFoundExceptions(false);
 
         return authenticationProvider;
 
@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .antMatchers("/auth/register/admin").hasRole("ADMIN")
                         .anyRequest().authenticated();
 
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.headers().frameOptions().disable();
 
         return http.build();
@@ -75,6 +76,6 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers("/h2-console/**", "/auth/register"));
+        return (web -> web.ignoring().antMatchers("/h2-console/**", "/auth/register", "auth/login"));
     }
 }

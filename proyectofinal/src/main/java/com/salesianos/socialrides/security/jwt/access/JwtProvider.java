@@ -1,10 +1,10 @@
-package com.salesianos.socialrides.security.jwt;
+package com.salesianos.socialrides.security.jwt.access;
 
 
 import com.salesianos.socialrides.model.user.User;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @Log
 @Service
@@ -66,5 +67,23 @@ public class JwtProvider {
                 .signWith(secretKey)
                 .compact();
 
+    }
+
+    public UUID getUserIdFromToken(String token){
+        return UUID.fromString(
+                jwtParser.parseClaimsJws(token).getBody().getSubject()
+        );
+    }
+
+    public boolean validateToken(String token) {
+
+        try {
+            jwtParser.parseClaimsJws(token);
+            return true;
+        }
+        catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            log.info("Error con el token: " + ex.getMessage());
+        }
+        return false;
     }
 }

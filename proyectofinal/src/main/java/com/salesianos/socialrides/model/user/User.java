@@ -50,6 +50,8 @@ public class User implements UserDetails {
     //AQUI VAN LOS ATRIBUTOS EXTRA
     private String password;
 
+    private String email;
+
     //**************************
     @Builder.Default
     private boolean accountNonExpired = true;
