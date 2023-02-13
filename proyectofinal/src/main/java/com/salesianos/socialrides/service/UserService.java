@@ -47,10 +47,28 @@ public class UserService {
                 .map( user -> {
                     user.setPassword(passwordEncoder.encode((newPassword)));
                     return userRepository.save(user);
-                }).or(()-> Optional.empty());
+                }).or(Optional::empty);
+    }
+
+    public Optional<User> edit(User user) {
+
+        return userRepository.findById(user.getId())
+                .map(u -> {
+                    u.setEmail(user.getEmail());
+                    return userRepository.save(u);
+                }).or(Optional::empty);
+
     }
 
     public boolean passwordMatch(User user, String password){
         return passwordEncoder.matches(password, user.getPassword());
     }
+
+    public void delete(User user){ deleteById(user.getId());}
+
+    public void deleteById(UUID id){
+        if(userRepository.existsById(id))
+            userRepository.deleteById(id);
+    }
+
 }

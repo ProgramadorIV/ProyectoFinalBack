@@ -3,6 +3,10 @@ package com.salesianos.socialrides.controller;
 import com.salesianos.socialrides.model.user.User;
 import com.salesianos.socialrides.model.user.dto.*;
 import com.salesianos.socialrides.security.jwt.access.JwtProvider;
+import com.salesianos.socialrides.security.jwt.refresh.RefreshToken;
+import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenException;
+import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenRequest;
+import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenService;
 import com.salesianos.socialrides.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,10 +29,9 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-
     private final AuthenticationManager authManager;
-
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/auth/register")
     public ResponseEntity<UserResponse> createUserWithUserRole(@RequestBody CreateUserRequest newUser){
@@ -60,7 +63,10 @@ public class UserController {
         String token = jwtProvider.generateToken(authentication);
         User user = (User) authentication.getPrincipal();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(JwtUserResponse.of(user, token));
+        refreshTokenService.deleteByUser(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(JwtUserResponse.of(user, token, refreshToken.getToken()));
     }
     @PutMapping("/user/changePassword")
     public ResponseEntity<UserResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
@@ -85,5 +91,26 @@ public class UserController {
         }
 
         return null;
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest){
+        String refreshedToken = refreshTokenRequest.getRefreshedToken();
+
+        return refreshTokenService.findByToken(refreshedToken)
+                .map(refreshTokenService::verify)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtProvider.generateToken(user);
+                    refreshTokenService.deleteByUser(user);
+                    RefreshToken refreshedTokenV2 = refreshTokenService.createRefreshToken(user);
+
+                    return ResponseEntity.status(HttpStatus.CREATED)
+                            .body(JwtUserResponse.builder()
+                                    .token(token)
+                                    .refreshedToken(refreshedTokenV2.getToken())
+                                    .build()
+                            );
+                }).orElseThrow(() -> new RefreshTokenException("Refresh token could not be found"));
     }
 }

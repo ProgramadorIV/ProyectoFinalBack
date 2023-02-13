@@ -22,7 +22,7 @@ import java.util.UUID;
 public class JwtProvider {
 
     public static final String TOKEN_TYPE ="JWT";
-    public static final String TOKEN_HEADER = "Authorized";
+    public static final String TOKEN_HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer";
 
 
@@ -30,7 +30,8 @@ public class JwtProvider {
     private String jwtSecret;
 
     @Value("${jwt.duration}")
-    private int lifeInDays;
+    //private int lifeInDays; Para dev pongo la duración en minutos
+    private int lifeInMinutes;
 
     private JwtParser jwtParser;
 
@@ -46,15 +47,20 @@ public class JwtProvider {
                 .build();
     }
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(Authentication authentication){
 
         User user = (User) authentication.getPrincipal();
+        return generateToken(user);
+    }
+
+    public String generateToken(User user) {
 
         Date tokenExpirationDateTime =
                 Date.from(
                         LocalDateTime
                                 .now()
-                                .plusDays(lifeInDays)
+                                //.plusDays(lifeInDays)
+                                .plusMinutes(lifeInMinutes)
                                 .atZone(ZoneId.systemDefault())
                                 .toInstant()
                 );
@@ -84,6 +90,6 @@ public class JwtProvider {
         catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
             log.info("Error con el token: " + ex.getMessage());
         }
-        return false;
+        return false; //Este return esta comentado pero no se porque
     }
 }
