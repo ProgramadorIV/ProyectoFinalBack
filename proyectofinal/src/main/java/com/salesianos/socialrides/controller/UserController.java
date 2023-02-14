@@ -8,6 +8,7 @@ import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenException;
 import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenRequest;
 import com.salesianos.socialrides.security.jwt.refresh.RefreshTokenService;
 import com.salesianos.socialrides.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +17,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "User", description = "User endpoints controller.")
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -34,7 +39,7 @@ public class UserController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity<UserResponse> createUserWithUserRole(@RequestBody CreateUserRequest newUser){
+    public ResponseEntity<UserResponse> createUserWithUserRole(@Valid @RequestBody CreateUserRequest newUser){
 
         User user = userService.createUserWithUserRole(newUser);
 
@@ -42,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/register/admin")
-    public ResponseEntity<UserResponse> createUserWithAdminRole(@RequestBody CreateUserRequest newUser){
+    public ResponseEntity<UserResponse> createUserWithAdminRole(@Valid @RequestBody CreateUserRequest newUser){
 
         User user = userService.createUserWithAdminRole(newUser);
 
@@ -50,7 +55,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<JwtUserResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<JwtUserResponse> login(@Valid @RequestBody LoginRequest loginRequest){
 
         Authentication authentication =
                 authManager.authenticate(
@@ -69,7 +74,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(JwtUserResponse.of(user, token, refreshToken.getToken()));
     }
     @PutMapping("/user/changePassword")
-    public ResponseEntity<UserResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
+    public ResponseEntity<UserResponse> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest,
                                                        @AuthenticationPrincipal User loggedUser) {
 
         // Este código es mejorable.
@@ -94,7 +99,7 @@ public class UserController {
     }
 
     @PostMapping("/refreshtoken")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest){
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
         String refreshedToken = refreshTokenRequest.getRefreshedToken();
 
         return refreshTokenService.findByToken(refreshedToken)
