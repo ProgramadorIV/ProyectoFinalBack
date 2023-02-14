@@ -71,4 +71,8 @@ public class UserService {
             userRepository.deleteById(id);
     }
 
+    public boolean existsByUsername(String value){
+        return userRepository.existsByUsername(value);
+    }
+
 }

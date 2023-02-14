@@ -11,8 +11,8 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class LoginRequest {
 
-    @NotEmpty(message = "{}")
+    @NotEmpty(message = "{createUserRequest.username.notempty}")
     private String username;
-    @NotEmpty(message = "{}")
+    @NotEmpty(message = "{createUserRequest.password.notempty}")
     private String password;
 }
