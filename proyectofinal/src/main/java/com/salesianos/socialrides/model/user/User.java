@@ -1,5 +1,7 @@
 package com.salesianos.socialrides.model.user;
 
+import com.salesianos.socialrides.model.like.Like;
+import com.salesianos.socialrides.model.post.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "user_entity")
@@ -51,6 +51,16 @@ public class User implements UserDetails {
     private String password;
 
     private String email;
+
+    @OneToMany(
+            mappedBy = "user"
+    )
+    @Builder.Default
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private List<Like> likes = new ArrayList<>();
 
     //**************************
     @Builder.Default
