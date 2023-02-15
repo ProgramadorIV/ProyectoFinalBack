@@ -28,6 +28,10 @@ public class UserService {
         User user = User.builder()
                 .username(createUserRequest.getUsername())
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
+                .name(createUserRequest.getName())
+                .surname(createUserRequest.getSurname())
+                .email(createUserRequest.getEmail())
+                .birthDate(createUserRequest.getBirthDate())
                 .roles(roles)
                 .build();
 

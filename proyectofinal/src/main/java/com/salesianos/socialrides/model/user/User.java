@@ -16,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -49,6 +50,12 @@ public class User implements UserDetails {
 
     //AQUI VAN LOS ATRIBUTOS EXTRA
     private String password;
+
+    private String name;
+
+    private String surname;
+
+    private LocalDate birthDate;
 
     private String email;
 
