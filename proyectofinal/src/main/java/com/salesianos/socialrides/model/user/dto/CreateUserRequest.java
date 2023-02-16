@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -29,6 +30,14 @@ public class CreateUserRequest {
 
     @NotEmpty(message = "{createUserRequest.email.notempty}")
     @Email(message = "{createUserRequest.email.email}")
+    //@UniqueEmail
     private String email;
-    //Más adelante le meteré más atributos
+
+    @NotEmpty(message = "{createUserRequest.name.notempty}")
+    private String name;
+
+    @NotEmpty(message = "{createUserRequest.surname.notempty}")
+    private String surname;
+
+    private LocalDate birthDate;
 }

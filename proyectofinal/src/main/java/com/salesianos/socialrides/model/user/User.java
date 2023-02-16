@@ -1,5 +1,7 @@
 package com.salesianos.socialrides.model.user;
 
+import com.salesianos.socialrides.model.like.Like;
+import com.salesianos.socialrides.model.post.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +16,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "user_entity")
@@ -50,7 +51,45 @@ public class User implements UserDetails {
     //AQUI VAN LOS ATRIBUTOS EXTRA
     private String password;
 
+    private String name;
+
+    private String surname;
+
+    private LocalDate birthDate;
+
     private String email;
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    @Builder.Default
+    private List<Post> posts = new ArrayList<>();
+
+    public void addPost(Post post){
+        post.setUser(this);
+        posts.add(post);
+    }
+
+    public void removePost(Post post){
+        posts.remove(post);
+        post.setUser(null);
+    }
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    @Builder.Default
+    private List<Like> likes = new ArrayList<>();
+
+    public void addLike(Like like){
+        like.setUser(this);
+        likes.add(like);
+    }
+
+    public void removeLike(Like like){
+        likes.remove(like);
+        like.setUser(null);
+    }
 
     //**************************
     @Builder.Default
