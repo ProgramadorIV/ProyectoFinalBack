@@ -1,5 +1,6 @@
 package com.salesianos.socialrides.model.post;
 
+import com.salesianos.socialrides.model.comment.Comment;
 import com.salesianos.socialrides.model.like.Like;
 import com.salesianos.socialrides.model.user.User;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,8 @@ public class Post {
     @GeneratedValue
     private Long id;
 
+    private String title;
+
     /*
     String con la url o path*/
     private String img;
@@ -39,15 +42,29 @@ public class Post {
 
     private String description;
 
-    private String ubication;
+    private String location;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private Set<Like> likes = new HashSet<>();
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Comment> comments = new HashSet<>();
 
     @Builder.Default
     private LocalDateTime dateTime = LocalDateTime.now();
+
+    //HELPERS
+    private void addToUser(User u){
+        user = u;
+        u.getPosts().add(this);
+    }
+
+    private void removeFromUser(User u){
+        u.getPosts().remove(this);
+        user = null;
+    }
 
     @Override
     public boolean equals(Object o) {

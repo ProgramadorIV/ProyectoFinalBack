@@ -42,6 +42,16 @@ public class Comment {
 
     private String body;
 
+    private void addToPost(Post p){
+        post = p;
+        p.getComments().add(this);
+    }
+
+    private void removeFromPost(Post p){
+        p.getComments().remove(this);
+        post = null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

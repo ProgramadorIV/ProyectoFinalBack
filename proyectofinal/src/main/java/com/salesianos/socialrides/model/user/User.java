@@ -81,16 +81,6 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Like> likes = new ArrayList<>();
 
-    public void addLike(Like like){
-        like.setUser(this);
-        likes.add(like);
-    }
-
-    public void removeLike(Like like){
-        likes.remove(like);
-        like.setUser(null);
-    }
-
     //**************************
     @Builder.Default
     private boolean accountNonExpired = true;
