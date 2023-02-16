@@ -59,15 +59,37 @@ public class User implements UserDetails {
 
     private String email;
 
-    @OneToMany(
-            mappedBy = "user"
-    )
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
     @Builder.Default
     private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    public void addPost(Post post){
+        post.setUser(this);
+        posts.add(post);
+    }
+
+    public void removePost(Post post){
+        posts.remove(post);
+        post.setUser(null);
+    }
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
     @Builder.Default
     private List<Like> likes = new ArrayList<>();
+
+    public void addLike(Like like){
+        like.setUser(this);
+        likes.add(like);
+    }
+
+    public void removeLike(Like like){
+        likes.remove(like);
+        like.setUser(null);
+    }
 
     //**************************
     @Builder.Default
