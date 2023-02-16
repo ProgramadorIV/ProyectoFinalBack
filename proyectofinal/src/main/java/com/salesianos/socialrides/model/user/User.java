@@ -27,6 +27,14 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@NamedEntityGraphs(
+        @NamedEntityGraph(name = "user-with-posts",
+                attributeNodes = {
+                @NamedAttributeNode(value = "roles"),
+                @NamedAttributeNode(value = "posts")
+                }
+        )
+)
 public class User implements UserDetails {
 
     @Id
@@ -64,16 +72,6 @@ public class User implements UserDetails {
             orphanRemoval = true)
     @Builder.Default
     private List<Post> posts = new ArrayList<>();
-
-    public void addPost(Post post){
-        post.setUser(this);
-        posts.add(post);
-    }
-
-    public void removePost(Post post){
-        posts.remove(post);
-        post.setUser(null);
-    }
 
     @OneToMany(mappedBy = "user",
             fetch = FetchType.LAZY,

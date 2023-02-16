@@ -1,5 +1,6 @@
 package com.salesianos.socialrides.model.post.dto;
 
+import com.salesianos.socialrides.validation.annotation.IsLocation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +25,6 @@ public class CreatePostRequest {
 
     @NotEmpty(message = "{createPost.location.notempty}")
     //@ es una ubicación lat, long
+    @IsLocation
     private String location;
 }

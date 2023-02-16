@@ -56,12 +56,12 @@ public class Post {
     private LocalDateTime dateTime = LocalDateTime.now();
 
     //HELPERS
-    private void addToUser(User u){
+    public void addToUser(User u){
         user = u;
         u.getPosts().add(this);
     }
 
-    private void removeFromUser(User u){
+    public void removeFromUser(User u){
         u.getPosts().remove(this);
         user = null;
     }
