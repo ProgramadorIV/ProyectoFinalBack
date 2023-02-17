@@ -54,6 +54,7 @@ public class PostController {
                     schema = @Schema(implementation = CreatePostRequest.class),
                     examples = @ExampleObject(value = """
                             {
+                                "id": 1,
                                 "title": "Escaleritas potentes",
                                 "description": "Pues un classic set de 12 escaleras con barra.",
                                 "img": "",
@@ -120,7 +121,10 @@ public class PostController {
                                         "description": "Pues un classic set de 12 escaleras con barra.",
                                         "img": "ngsvi",
                                         "location": "12.4,1.5",
-                                        "dateTime": "16/02/2023 09:21:39"
+                                        "dateTime": "16/02/2023 09:21:39",
+                                        "username": "antonio",
+                                        "likes": ,
+                                        "comments": 
                                     }
                                     """)) }),
             @ApiResponse(responseCode = "404", description = "No post with id: 1" ,

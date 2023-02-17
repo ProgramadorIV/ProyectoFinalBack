@@ -30,7 +30,6 @@ import java.util.*;
 @NamedEntityGraphs(
         @NamedEntityGraph(name = "user-with-posts",
                 attributeNodes = {
-                @NamedAttributeNode(value = "roles"),
                 @NamedAttributeNode(value = "posts")
                 }
         )

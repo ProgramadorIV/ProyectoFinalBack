@@ -24,7 +24,6 @@ public class CreatePostRequest {
     private String description;
 
     @NotEmpty(message = "{createPost.location.notempty}")
-    //@ es una ubicación lat, long
     @IsLocation
     private String location;
 }

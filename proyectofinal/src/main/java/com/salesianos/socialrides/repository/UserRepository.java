@@ -13,6 +13,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUsername(String username);
 
-    @EntityGraph("user-with-posts")
+    @EntityGraph(value = "user-with-posts", type = EntityGraph.EntityGraphType.LOAD)
     Optional<User> findById(UUID id);
 }

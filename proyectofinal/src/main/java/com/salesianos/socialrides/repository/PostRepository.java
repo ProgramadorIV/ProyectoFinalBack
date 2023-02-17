@@ -14,14 +14,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
             SELECT new com.salesianos.socialrides.model.post.dto.PostResponse(
-            p.title, p.description, p.img, p.location)
+            p.id, p.title, p.description, p.img, p.location)
             FROM Post p
             """)
     Page<List<PostResponse>> findAllPosts(Pageable pageable);
 
     @Query("""
             SELECT new com.salesianos.socialrides.model.post.dto.PostResponse(
-            p.title, p.description, p.img, p.location, p.dateTime)
+            p.title, p.description, p.img, p.location, p.dateTime, p.user.username)
             FROM Post p
             WHERE p.id = :id
             """)
