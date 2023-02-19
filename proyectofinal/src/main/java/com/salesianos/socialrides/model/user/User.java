@@ -1,7 +1,8 @@
 package com.salesianos.socialrides.model.user;
 
-import com.salesianos.socialrides.model.like.Like;
+import com.salesianos.socialrides.model.like.Likee;
 import com.salesianos.socialrides.model.post.Post;
+import com.salesianos.socialrides.utils.EnumSetAttributeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,7 +63,7 @@ public class User implements UserDetails {
 
     private String surname;
 
-    private LocalDate birthDate;
+    private LocalDate birthday;
 
     private String email;
 
@@ -76,7 +77,7 @@ public class User implements UserDetails {
             fetch = FetchType.LAZY,
             orphanRemoval = true)
     @Builder.Default
-    private List<Like> likes = new ArrayList<>();
+    private List<Likee> likes = new ArrayList<>();
 
     //**************************
     @Builder.Default
@@ -88,7 +89,8 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean enabled = true;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+
+    @Convert(converter = EnumSetAttributeConverter.class)
     private Set<UserRole> roles;
 
     @CreatedDate

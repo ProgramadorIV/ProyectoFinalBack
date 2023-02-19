@@ -29,7 +29,7 @@ public class Comment {
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_COMMENT_USER"))
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_COMMENT_USER"), columnDefinition = "uuid")
     private User user;
 
     @ManyToOne

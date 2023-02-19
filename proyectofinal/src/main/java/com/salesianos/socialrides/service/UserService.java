@@ -31,7 +31,7 @@ public class UserService {
                 .name(createUserRequest.getName())
                 .surname(createUserRequest.getSurname())
                 .email(createUserRequest.getEmail())
-                .birthDate(createUserRequest.getBirthDate())
+                .birthday(createUserRequest.getBirthDate())
                 .roles(roles)
                 .build();
 

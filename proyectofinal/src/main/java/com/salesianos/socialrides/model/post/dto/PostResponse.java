@@ -2,30 +2,24 @@ package com.salesianos.socialrides.model.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.salesianos.socialrides.model.comment.dto.CommentResponse;
+import com.salesianos.socialrides.model.like.dto.LikeResponse;
 import com.salesianos.socialrides.model.post.Post;
-import com.salesianos.socialrides.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PostResponse {
-
-    public PostResponse(String title, String description, String img, String location, LocalDateTime dateTime, String username){
-        this.username = username;
-        this.title = title;
-        this.description = description;
-        this.img = img;
-        this.location = location;
-        this.dateTime = dateTime;
-    }
 
     public PostResponse(Long id, String title, String description, String img, String location){
         this.id = id;
@@ -50,6 +44,11 @@ public class PostResponse {
 
     private String username;
 
+    private List<LikeResponse> likes = new ArrayList<>();
+
+    private List<CommentResponse> comments = new ArrayList<>();
+
+
     public static PostResponse of (Post post){
         return PostResponse.builder()
                 //Puede que necesite el ternario en el img
@@ -59,6 +58,12 @@ public class PostResponse {
                 .img(post.getImg())
                 .location(post.getLocation())
                 .dateTime(post.getDateTime())
+                .likes(
+                        post.getLikes().stream().map(LikeResponse::of).toList()
+                )
+                .comments(
+                        post.getComments().stream().map(CommentResponse::of).toList()
+                )
                 .build();
     }
 }

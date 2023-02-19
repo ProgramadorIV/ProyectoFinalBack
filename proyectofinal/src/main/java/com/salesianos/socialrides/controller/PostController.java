@@ -17,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +28,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Post", description = "Post endpoints controller")
-@RequestMapping("/post")
 public class PostController {
 
     private final PostService postService;
@@ -64,12 +63,10 @@ public class PostController {
                             """)
             )}
     )
-    @PostMapping("/")
+    @PostMapping("/auth/post")
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest post,
                                                    @AuthenticationPrincipal User loggedUser){
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                PostResponse.of(postService.createPost(post, loggedUser))
-        );
+        return postService.createPost(post, loggedUser);
     }
 
     @Operation(summary = "Returns list with all the posts.")
@@ -84,12 +81,14 @@ public class PostController {
                                                     value = """
                                                             [
                                                                 {
+                                                                    "id": 1,
                                                                     "title": "Escaleritas potentes",
                                                                     "description": "Pues un classic set de 12 escaleras con barra.",
                                                                     "img": "ngsvi",
                                                                     "location": "12.4,1.5"
                                                                 },
                                                                 {
+                                                                    "id": 2,
                                                                     "title": "Setas de Sevilla",
                                                                     "description": "Un spot clásico de la capital andaluza que debes visitar",
                                                                     "img": "ngsvi",
@@ -104,7 +103,7 @@ public class PostController {
                     description = "No posts found",
                     content = @Content)
     })
-    @GetMapping("/")
+    @GetMapping("/post")
     public Page<List<PostResponse>> getAllPosts(/*@PageableDefault(page = 0, size = 10)*/@PageableDefault Pageable pageable){
         return postService.findAll(pageable);
     }
@@ -122,24 +121,117 @@ public class PostController {
                                         "img": "ngsvi",
                                         "location": "12.4,1.5",
                                         "dateTime": "16/02/2023 09:21:39",
-                                        "username": "antonio",
-                                        "likes": ,
-                                        "comments": 
+                                        "username": "Antonio",
+                                        "likes": [
+                                                        {
+                                                            "username": "Antonio",
+                                                            "dateTime": "19/02/2023 01:01:44"
+                                                        }
+                                                  ],
+                                        "comments": [
+                                                        {
+                                                            "username": "Antonio",
+                                                            "dateTime": "19/02/2023 01:01:44",
+                                                            "body": "Me ha gustao"
+                                                        }
+                                                     ]
                                     }
                                     """)) }),
             @ApiResponse(responseCode = "404", description = "No post with id: 1" ,
                     content = @Content) })
     @Parameter(description = "ID of the post", required = true)
-    @GetMapping("/{id}")
+    @GetMapping("/post/{id}")
     public PostResponse getPostById(@PathVariable Long id){
-        return postService.findOne(id);
+        return PostResponse.of(postService.findPostWithInteractions(id));
     }
 
-    /*@PutMapping("/{id}")
-    public ResponseEntity<PostResponse> editPost(@PathVariable Long id, @Valid @RequestBody CreatePostRequest editedPost,
-                                                 @AuthenticationPrincipal User user){
 
-    }*/
+    @Operation(summary = "Returns list with all the posts published by the user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "List of posts from users found",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = PostResponse.class)),
+                                    examples = {
+                                            @ExampleObject(
+                                                    value = """
+                                                            [
+                                                                {
+                                                                    "id": 1,
+                                                                    "title": "Escaleritas potentes",
+                                                                    "description": "Pues un classic set de 12 escaleras con barra.",
+                                                                    "img": "ngsvi",
+                                                                    "location": "12.4,1.5"
+                                                                },
+                                                                {
+                                                                    "id": 2,
+                                                                    "title": "Setas de Sevilla",
+                                                                    "description": "Un spot clásico de la capital andaluza que debes visitar",
+                                                                    "img": "ngsvi",
+                                                                    "location": "1.2,1.5"
+                                                                }
+                                                            ]
+                                                            """
+                                            )
+                                    })
+                    }),
+            @ApiResponse(responseCode = "404",
+                    description = "This user has not published posts",
+                    content = @Content)
+    })
+    @GetMapping("/auth/post")
+    public Page<List<PostResponse>> getAllUserPost(@PageableDefault Pageable pageable, @AuthenticationPrincipal User user){
+        return postService.findAllByUser(pageable, user.getId());
+    }
+
+
+    @Operation(summary = "Edits the post provided.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post edited successfully",
+                    content = { @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "title": "Escaleritas potentes",
+                                        "description": "Pues un classic set de 12 escaleras con barra.",
+                                        "img": "ngsvi",
+                                        "location": "1.2,1.5",
+                                        "dateTime": "19/02/2023 11:23:31",
+                                        "username": "antonio",
+                                        "likes": [],
+                                        "commnets": []
+                                    }
+                                    """)
+                    )
+                    }
+            ),
+            @ApiResponse(responseCode = "400", description = "The data provided is incorrect",
+                    content = @Content)
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Actualized data of the post",
+            content = { @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CreatePostRequest.class),
+                    examples = @ExampleObject( value = """
+                                {
+                                    "img": "ngsvi",
+                                    "title": "Escaleritas potentes",
+                                    "description": "Pues un classic set de 12 escaleras con barra.",
+                                    "location": "1.2,1.5"
+                                }
+                            """)
+            )}
+    )
+    @Parameter(description = "Post to edit id", name = "id", required = true)
+    @PreAuthorize("@postRepository.findById(#id).orElse(new com.salesianos.socialrides.model.post.Post()).user.username == authentication.principal.getUsername()")
+    @PutMapping("auth/post/{id}")
+    public ResponseEntity<PostResponse> editPost(@PathVariable Long id, @Valid @RequestBody CreatePostRequest editedPost){
+        return postService.editPost(id, editedPost);
+    }
+
+    /*@DeleteMapping("/{id}")*/
 
 
 }
