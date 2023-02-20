@@ -76,14 +76,18 @@ public class PostService {
         return posts;
     }
 
-    public ResponseEntity<PostResponse> editPost(Long id, CreatePostRequest editedPost){
+    public PostResponse editPost(Long id, CreatePostRequest editedPost){
 
-        return ResponseEntity.ok(PostResponse.of(postRepository.findById(id).map(post -> {
+        return PostResponse.of(postRepository.findById(id).map(post -> {
             post.setTitle(editedPost.getTitle());
             post.setImg(editedPost.getImg());
             post.setDescription(editedPost.getDescription());
             post.setLocation(editedPost.getLocation());
             return postRepository.save(post);
-        }).orElseThrow(() -> new PostNotFoundException(id))));
+        }).orElseThrow(() -> new PostNotFoundException(id)));
+    }
+
+    public void deletePost(Long id){
+        postRepository.deleteById(id);
     }
 }

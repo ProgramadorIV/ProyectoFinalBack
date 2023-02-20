@@ -15,14 +15,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
             SELECT new com.salesianos.socialrides.model.post.dto.PostResponse(
-            p.id, p.title, p.description, p.img, p.location)
+            p.id, p.title, p.description, p.img, p.location, p.dateTime)
             FROM Post p
             """)
     Page<List<PostResponse>> findAllPosts(Pageable pageable);
 
     @Query("""
             SELECT new com.salesianos.socialrides.model.post.dto.PostResponse(
-            p.id, p.title, p.description, p.img, p.location)
+            p.id, p.title, p.description, p.img, p.location, p.dateTime)
             FROM Post p
             WHERE p.user.id = :id
             """)
@@ -47,6 +47,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             WHERE p.id = :id
             """)
     Optional<Post> findPost(Long id);
+
 
     /*@Query("""
             SELECT DISTINCT l

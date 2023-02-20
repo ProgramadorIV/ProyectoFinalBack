@@ -1,9 +1,11 @@
 package com.salesianos.socialrides.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.salesianos.socialrides.model.post.dto.CreatePostRequest;
 import com.salesianos.socialrides.model.post.dto.PostResponse;
 import com.salesianos.socialrides.model.user.User;
 import com.salesianos.socialrides.service.PostService;
+import com.salesianos.socialrides.view.View;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -64,6 +66,7 @@ public class PostController {
             )}
     )
     @PostMapping("/auth/post")
+    @JsonView({View.PostView.PostWithEverythingView.class})
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest post,
                                                    @AuthenticationPrincipal User loggedUser){
         return postService.createPost(post, loggedUser);
@@ -104,6 +107,7 @@ public class PostController {
                     content = @Content)
     })
     @GetMapping("/post")
+    //@JsonView({View.PostView.PostListView.class}) todo -- No sale porque esta dentro de un pageable
     public Page<List<PostResponse>> getAllPosts(/*@PageableDefault(page = 0, size = 10)*/@PageableDefault Pageable pageable){
         return postService.findAll(pageable);
     }
@@ -141,6 +145,7 @@ public class PostController {
                     content = @Content) })
     @Parameter(description = "ID of the post", required = true)
     @GetMapping("/post/{id}")
+    @JsonView({View.PostView.PostWithEverythingView.class})
     public PostResponse getPostById(@PathVariable Long id){
         return PostResponse.of(postService.findPostWithInteractions(id));
     }
@@ -181,6 +186,7 @@ public class PostController {
                     content = @Content)
     })
     @GetMapping("/auth/post")
+    //@JsonView({View.PostView.PostListView.class})
     public Page<List<PostResponse>> getAllUserPost(@PageableDefault Pageable pageable, @AuthenticationPrincipal User user){
         return postService.findAllByUser(pageable, user.getId());
     }
@@ -225,13 +231,25 @@ public class PostController {
             )}
     )
     @Parameter(description = "Post to edit id", name = "id", required = true)
-    @PreAuthorize("@postRepository.findById(#id).orElse(new com.salesianos.socialrides.model.post.Post()).user.username == authentication.principal.getUsername()")
+    @JsonView({View.PostView.PostWithEverythingView.class})
+    @PreAuthorize("@postRepository.existsById(#id)? @postRepository.findById(#id).get().user.username == authentication.principal.getUsername() : false")
     @PutMapping("auth/post/{id}")
-    public ResponseEntity<PostResponse> editPost(@PathVariable Long id, @Valid @RequestBody CreatePostRequest editedPost){
+    public PostResponse editPost(@PathVariable Long id, @Valid @RequestBody CreatePostRequest editedPost){
         return postService.editPost(id, editedPost);
     }
+    //TODO-- Preguntar si el preauthorize está bien
 
-    /*@DeleteMapping("/{id}")*/
-
-
+    @Operation(summary = "Deletes a post specified by id")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204", description = "Post deleted successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @Parameter(description = "Post id", name = "id", required = true)
+    @PreAuthorize("@postRepository.existsById(#id)? @postRepository.findById(#id).get().user.username == authentication.principal.getUsername() : false")
+    @DeleteMapping("auth/post/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable Long id){
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
+    }
 }

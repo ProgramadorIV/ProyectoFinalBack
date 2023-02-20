@@ -1,10 +1,11 @@
 package com.salesianos.socialrides.model.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.salesianos.socialrides.model.comment.dto.CommentResponse;
 import com.salesianos.socialrides.model.like.dto.LikeResponse;
 import com.salesianos.socialrides.model.post.Post;
+import com.salesianos.socialrides.view.View;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,34 +19,43 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PostResponse {
 
-    public PostResponse(Long id, String title, String description, String img, String location){
+    public PostResponse(Long id, String title, String description, String img, String location, LocalDateTime dateTime){
         this.id = id;
         this.title = title;
         this.description = description;
         this.img = img;
         this.location = location;
+        this.dateTime = dateTime;
     }
 
+    @JsonView({View.PostView.PostListView.class})
     private Long id;
 
+    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
     private String title;
 
+    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
     private String description;
 
+    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
     private String img;
 
+    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
     private String location;
 
-    @JsonFormat(pattern = "dd/MM/yyyy hh:HH:ss")
+    @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss")
+    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
     private LocalDateTime dateTime;
 
+    @JsonView({View.PostView.PostWithEverythingView.class})
     private String username;
 
+    @JsonView({View.PostView.PostWithEverythingView.class})
     private List<LikeResponse> likes = new ArrayList<>();
 
+    @JsonView({View.PostView.PostWithEverythingView.class})
     private List<CommentResponse> comments = new ArrayList<>();
 
 
