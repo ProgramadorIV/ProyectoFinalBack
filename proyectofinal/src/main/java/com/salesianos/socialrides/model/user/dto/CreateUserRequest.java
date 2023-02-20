@@ -1,5 +1,8 @@
 package com.salesianos.socialrides.model.user.dto;
 
+import com.salesianos.socialrides.validation.annotation.FieldsMatch;
+import com.salesianos.socialrides.validation.annotation.PasswordFriendly;
+import com.salesianos.socialrides.validation.annotation.UniqueEmail;
 import com.salesianos.socialrides.validation.annotation.UniqueUsername;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,29 +11,31 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldsMatch(field = "password", fieldMatch = "verifyPassword", message = "{changePasswordRequest.password.nomatch}")
 public class CreateUserRequest {
 
     @NotEmpty(message = "{createUserRequest.username.notempty}")
     @UniqueUsername
     private String username;
 
-    //@PasswordFriendly
+    @PasswordFriendly
     @NotEmpty(message = "{createUserRequest.password.notempty}")
     private String password;
 
-    // @ Que se verifique con la otra
     @NotEmpty(message = "{createUserRequest.verifyPassword.notempty}")
     private String verifyPassword;
 
     @NotEmpty(message = "{createUserRequest.email.notempty}")
     @Email(message = "{createUserRequest.email.email}")
-    //@UniqueEmail
+    @UniqueEmail
     private String email;
 
     @NotEmpty(message = "{createUserRequest.name.notempty}")
@@ -39,5 +44,7 @@ public class CreateUserRequest {
     @NotEmpty(message = "{createUserRequest.surname.notempty}")
     private String surname;
 
-    private LocalDate birthDate;
+    @Past(message = "{createUserRequest.birthday.past}")
+    @NotNull(message = "{createUserRequest.birthday.notnull}")
+    private LocalDate birthday;
 }

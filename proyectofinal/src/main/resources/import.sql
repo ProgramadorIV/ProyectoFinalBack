@@ -1,0 +1,4 @@
+INSERT INTO user_entity(id, username, password, name, surname, birthday, email, account_non_expired, account_non_locked, credentials_non_expired, enabled, roles, created_at, last_password_change_at) VALUES ('4ae23df7-4194-4941-8a9d-0310c37c3d30','Antonio', '{bcrypt}$2a$12$UPAjWL1Ww6rF/pVfdPzojuZrIA.iGAirQiIy99SOKQSU400nbxLR6', 'Antonio', 'Jiménez', '2022-12-13', 'antonio@gmail.com', true, true, true, true, 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO post_entity(id, title, img, user_id, description, location, date_time) VALUES (NEXTVAL('hibernate_sequence'), 'Setas de sevilla', 'gigig.img', '4ae23df7-4194-4941-8a9d-0310c37c3d30', 'Un sitio muy bonito', '1.2,1.9', CURRENT_TIMESTAMP)
+INSERT INTO comment_entity(user_id, post_id, date_time, body) VALUES ('4ae23df7-4194-4941-8a9d-0310c37c3d30', 1, CURRENT_TIMESTAMP, 'Me ha gustao')
+INSERT INTO like_entity(user_id, post_id, date_time) VALUES ('4ae23df7-4194-4941-8a9d-0310c37c3d30', 1, CURRENT_TIMESTAMP)

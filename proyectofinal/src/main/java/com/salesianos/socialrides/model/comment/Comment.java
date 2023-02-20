@@ -29,7 +29,7 @@ public class Comment {
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_COMMENT_USER"))
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_COMMENT_USER"), columnDefinition = "uuid")
     private User user;
 
     @ManyToOne
@@ -41,6 +41,16 @@ public class Comment {
     private LocalDateTime dateTime = LocalDateTime.now();
 
     private String body;
+
+    private void addToPost(Post p){
+        post = p;
+        p.getComments().add(this);
+    }
+
+    private void removeFromPost(Post p){
+        p.getComments().remove(this);
+        post = null;
+    }
 
     @Override
     public boolean equals(Object o) {

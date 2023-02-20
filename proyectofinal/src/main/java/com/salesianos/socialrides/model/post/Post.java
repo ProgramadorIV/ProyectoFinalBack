@@ -1,6 +1,7 @@
 package com.salesianos.socialrides.model.post;
 
-import com.salesianos.socialrides.model.like.Like;
+import com.salesianos.socialrides.model.comment.Comment;
+import com.salesianos.socialrides.model.like.Likee;
 import com.salesianos.socialrides.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +22,28 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/*@NamedEntityGraphs(
+        @NamedEntityGraph(name = "post-with-likes-and-comments",
+        attributeNodes = {
+                @NamedAttributeNode(value = "user"),
+                @NamedAttributeNode(value = "likes", subgraph = "like-users"),
+                @NamedAttributeNode(value = "comments", subgraph = "comment-users")
+        }, subgraphs = {
+                @NamedSubgraph(name = "like-users", attributeNodes = {
+                        @NamedAttributeNode("user")
+                }),
+                @NamedSubgraph(name = "comment-users", attributeNodes = {
+                        @NamedAttributeNode("user")
+                })
+        })
+)*/
 public class Post {
 
     @Id
     @GeneratedValue
     private Long id;
+
+    private String title;
 
     /*
     String con la url o path*/
@@ -39,15 +57,30 @@ public class Post {
 
     private String description;
 
-    private String ubication;
+    private String location;
 
-    @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private Set<Like> likes = new HashSet<>();
+    private Set<Likee> likes = new HashSet<>();
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Comment> comments = new HashSet<>();
 
     @Builder.Default
     private LocalDateTime dateTime = LocalDateTime.now();
+
+    //HELPERS
+    public void addToUser(User u){
+        user = u;
+        u.getPosts().add(this);
+    }
+
+    public void removeFromUser(User u){
+        u.getPosts().remove(this);
+        user = null;
+    }
+
 
     @Override
     public boolean equals(Object o) {

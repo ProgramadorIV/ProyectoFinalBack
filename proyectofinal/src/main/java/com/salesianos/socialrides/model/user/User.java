@@ -1,7 +1,8 @@
 package com.salesianos.socialrides.model.user;
 
-import com.salesianos.socialrides.model.like.Like;
+import com.salesianos.socialrides.model.like.Likee;
 import com.salesianos.socialrides.model.post.Post;
+import com.salesianos.socialrides.utils.EnumSetAttributeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,13 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@NamedEntityGraphs(
+        @NamedEntityGraph(name = "user-with-posts",
+                attributeNodes = {
+                @NamedAttributeNode(value = "posts")
+                }
+        )
+)
 public class User implements UserDetails {
 
     @Id
@@ -55,7 +63,7 @@ public class User implements UserDetails {
 
     private String surname;
 
-    private LocalDate birthDate;
+    private LocalDate birthday;
 
     private String email;
 
@@ -65,31 +73,11 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Post> posts = new ArrayList<>();
 
-    public void addPost(Post post){
-        post.setUser(this);
-        posts.add(post);
-    }
-
-    public void removePost(Post post){
-        posts.remove(post);
-        post.setUser(null);
-    }
-
     @OneToMany(mappedBy = "user",
             fetch = FetchType.LAZY,
             orphanRemoval = true)
     @Builder.Default
-    private List<Like> likes = new ArrayList<>();
-
-    public void addLike(Like like){
-        like.setUser(this);
-        likes.add(like);
-    }
-
-    public void removeLike(Like like){
-        likes.remove(like);
-        like.setUser(null);
-    }
+    private List<Likee> likes = new ArrayList<>();
 
     //**************************
     @Builder.Default
@@ -101,7 +89,8 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean enabled = true;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+
+    @Convert(converter = EnumSetAttributeConverter.class)
     private Set<UserRole> roles;
 
     @CreatedDate

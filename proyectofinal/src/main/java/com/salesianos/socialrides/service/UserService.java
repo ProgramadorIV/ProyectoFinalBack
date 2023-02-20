@@ -31,7 +31,7 @@ public class UserService {
                 .name(createUserRequest.getName())
                 .surname(createUserRequest.getSurname())
                 .email(createUserRequest.getEmail())
-                .birthDate(createUserRequest.getBirthDate())
+                .birthday(createUserRequest.getBirthday())
                 .roles(roles)
                 .build();
 
@@ -75,8 +75,10 @@ public class UserService {
             userRepository.deleteById(id);
     }
 
-    public boolean existsByUsername(String value){
-        return userRepository.existsByUsername(value);
+    public boolean existsByUsername(String username){
+        return userRepository.existsByUsername(username);
     }
+
+    public boolean existsByEmail(String email){ return userRepository.existsByEmail(email); }
 
 }

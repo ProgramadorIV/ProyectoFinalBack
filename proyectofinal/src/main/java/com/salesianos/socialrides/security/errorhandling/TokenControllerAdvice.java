@@ -26,7 +26,7 @@ public class TokenControllerAdvice {
                 .body(ErrorMessage.of(HttpStatus.UNAUTHORIZED, e.getMessage(), request.getRequestURI()));
     }
 
-    @ExceptionHandler({ AccessDeniedException.class })
+    @ExceptionHandler({ AccessDeniedException.class})
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ErrorMessage.of(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI()));
