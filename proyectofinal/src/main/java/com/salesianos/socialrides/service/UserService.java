@@ -1,14 +1,22 @@
 package com.salesianos.socialrides.service;
 
+import com.salesianos.socialrides.exception.user.NotLikedPostsException;
+import com.salesianos.socialrides.exception.user.UserNotFoundException;
+import com.salesianos.socialrides.model.post.dto.PostResponse;
 import com.salesianos.socialrides.model.user.User;
 import com.salesianos.socialrides.model.user.UserRole;
 import com.salesianos.socialrides.model.user.dto.CreateUserRequest;
+import com.salesianos.socialrides.model.user.dto.EditUserRequest;
+import com.salesianos.socialrides.model.user.dto.UserResponse;
 import com.salesianos.socialrides.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,7 +30,15 @@ public class UserService {
 
     public Optional<User> findById(UUID id){return userRepository.findById(id);}
 
-    public Optional<User> findByUsername(String username){return userRepository.findFirstByUsername(username);}
+    public Optional<User> findByUsername(String username){
+        return userRepository.findFirstByUsername(username);
+    }
+
+    public UserResponse findUserByUsername(String username){
+        return userRepository.findFirstByUsername(username)
+                .map(UserResponse::of)
+                .orElseThrow(() -> new UserNotFoundException(username));
+    }
 
     public User createUser(CreateUserRequest createUserRequest, EnumSet<UserRole> roles){
         User user = User.builder()
@@ -54,14 +70,16 @@ public class UserService {
                 }).or(Optional::empty);
     }
 
-    public Optional<User> edit(User user) {
+    public UserResponse edit(EditUserRequest editedUser, User user) {
 
-        return userRepository.findById(user.getId())
+        return UserResponse.toDetails(userRepository.findById(user.getId())
                 .map(u -> {
-                    u.setEmail(user.getEmail());
+                    u.setName(editedUser.getName());
+                    u.setSurname(editedUser.getSurname());
+                    u.setEmail(editedUser.getEmail());
+                    u.setBirthday(editedUser.getBirthday());
                     return userRepository.save(u);
-                }).or(Optional::empty);
-
+                }).orElseThrow(UserNotFoundException::new));
     }
 
     public boolean passwordMatch(User user, String password){
@@ -80,5 +98,21 @@ public class UserService {
     }
 
     public boolean existsByEmail(String email){ return userRepository.existsByEmail(email); }
+
+    public Page<List<PostResponse>> getLikedPosts(Pageable pageable, UUID userId){
+
+        Page<List<PostResponse>> page = userRepository.findLikedPosts(pageable, userId);
+
+        if(page.isEmpty())
+            throw new NotLikedPostsException();
+        return page;
+    }
+
+    public UserResponse getProfile(UUID id){
+        return UserResponse.of(
+                userRepository.findById(id)
+                        .orElseThrow(UserNotFoundException::new)
+        );
+    }
 
 }
