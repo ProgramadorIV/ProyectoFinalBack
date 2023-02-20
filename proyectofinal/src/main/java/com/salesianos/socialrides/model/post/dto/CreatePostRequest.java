@@ -15,9 +15,11 @@ import javax.validation.constraints.Size;
 @Builder
 public class CreatePostRequest {
 
+    //todo - ES POSIBLE QUE TENGA QUE CREAR UN EDITPOST CON @NOTEMPTY
     private String img;
 
     @NotEmpty(message = "{createPost.title.notempty}")
+    @Size(message = "{createPost.title.size}")
     private String title;
 
     @Size(max = 1000, message = "{createPost.description.size}")

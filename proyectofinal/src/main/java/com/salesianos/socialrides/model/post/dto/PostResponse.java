@@ -30,23 +30,34 @@ public class PostResponse {
         this.dateTime = dateTime;
     }
 
-    @JsonView({View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private Long id;
 
-    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostWithEverythingView.class,
+            View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private String title;
 
-    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostWithEverythingView.class,
+            View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private String description;
 
-    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostWithEverythingView.class,
+            View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private String img;
 
-    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostWithEverythingView.class,
+            View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private String location;
 
     @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss")
-    @JsonView({View.PostView.PostWithEverythingView.class, View.PostView.PostListView.class})
+    @JsonView({View.PostView.PostWithEverythingView.class,
+            View.PostView.PostListView.class,
+            View.UserView.ProfileView.class})
     private LocalDateTime dateTime;
 
     @JsonView({View.PostView.PostWithEverythingView.class})
@@ -74,6 +85,17 @@ public class PostResponse {
                 .comments(
                         post.getComments().stream().map(CommentResponse::of).toList()
                 )
+                .build();
+    }
+
+    public static PostResponse fromUser(Post post){
+        return PostResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .description(post.getDescription())
+                .img(post.getImg())
+                .location(post.getLocation())
+                .dateTime(post.getDateTime())
                 .build();
     }
 }

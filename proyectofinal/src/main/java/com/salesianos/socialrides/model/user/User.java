@@ -28,13 +28,19 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@NamedEntityGraphs(
+@NamedEntityGraphs( value = {
         @NamedEntityGraph(name = "user-with-posts",
                 attributeNodes = {
-                @NamedAttributeNode(value = "posts")
+                        @NamedAttributeNode(value = "posts")
+                }
+        ),
+        @NamedEntityGraph(name = "user-with-posts-and-likes",
+                attributeNodes = {
+                        @NamedAttributeNode(value = "posts"),
+                        @NamedAttributeNode(value = "likes")
                 }
         )
-)
+})
 public class User implements UserDetails {
 
     @Id

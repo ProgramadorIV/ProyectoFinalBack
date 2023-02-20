@@ -11,5 +11,10 @@ public class View {
 
     public static interface UserView{
 
+        public static interface ProfileView{}
+
+        public static interface DetailsView{}
+
+        public static interface CreatedView{}
     }
 }
