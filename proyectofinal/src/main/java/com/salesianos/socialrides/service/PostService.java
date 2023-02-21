@@ -3,6 +3,7 @@ package com.salesianos.socialrides.service;
 import com.salesianos.socialrides.exception.post.NoPostsException;
 import com.salesianos.socialrides.exception.post.NoUserPostsException;
 import com.salesianos.socialrides.exception.post.PostNotFoundException;
+import com.salesianos.socialrides.exception.user.UserNotFoundException;
 import com.salesianos.socialrides.model.post.Post;
 import com.salesianos.socialrides.model.post.dto.CreatePostRequest;
 import com.salesianos.socialrides.model.post.dto.PostResponse;
@@ -23,6 +24,8 @@ import java.util.UUID;
 public class PostService {
 
     private final PostRepository postRepository;
+
+    private final UserService userService;
 
     public Post findById(Long id){
         return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -54,7 +57,9 @@ public class PostService {
                         .description(newPost.getDescription())
                         .location(newPost.getLocation())
                         .build();
-        post.addToUser(u);
+        User user = userService.findById(u.getId())
+                .orElseThrow(UserNotFoundException::new);
+        post.addToUser(user);
         postRepository.save(post);
 
         return ResponseEntity.created(ServletUriComponentsBuilder

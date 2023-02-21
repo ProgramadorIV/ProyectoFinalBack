@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -245,7 +246,8 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/auth/user/like")
-    public Page<List<PostResponse>> getLikedPosts(@PageableDefault Pageable pageable, @AuthenticationPrincipal User user){
+    public Page<List<PostResponse>> getLikedPosts(@PageableDefault(sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                                                  @AuthenticationPrincipal User user){
         return userService.getLikedPosts(pageable, user.getId());
     }
 
