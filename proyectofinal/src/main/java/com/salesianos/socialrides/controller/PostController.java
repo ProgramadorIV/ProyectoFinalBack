@@ -18,11 +18,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -42,10 +44,12 @@ public class PostController {
                             schema = @Schema(implementation = PostResponse.class),
                             examples = @ExampleObject(value = """
                                     {
-                                         "img": "",
-                                         "title": "Escaleritas potentes",
-                                         "description": "Pues un classic set de 12 escaleras con barra.",
-                                         "location": "12.4,1.5"
+                                        "id": 1,
+                                        "title": "Escaleritas potentes",
+                                        "description": "Pues un classic set de 12 escaleras con barra.",
+                                        "img": "",
+                                        "location": "12.4,1.5",
+                                        "dateTime": "16/02/2023 06:18:11"
                                      }
                                     """)) }),
             @ApiResponse(responseCode = "404", description = "There are no posts yet.",
@@ -55,21 +59,20 @@ public class PostController {
                     schema = @Schema(implementation = CreatePostRequest.class),
                     examples = @ExampleObject(value = """
                             {
-                                "id": 1,
+                                "img": "",
                                 "title": "Escaleritas potentes",
                                 "description": "Pues un classic set de 12 escaleras con barra.",
-                                "img": "",
-                                "location": "12.4,1.5",
-                                "dateTime": "16/02/2023 06:18:11"
+                                "location": "12.4,1.5"
                             }
                             """)
             )}
     )
     @PostMapping("/auth/post")
     @JsonView({View.PostView.PostWithEverythingView.class})
-    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest post,
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestPart("post") CreatePostRequest post,
+                                                   @RequestPart("file") MultipartFile file,
                                                    @AuthenticationPrincipal User loggedUser){
-        return postService.createPost(post, loggedUser);
+        return postService.createPost(post, file, loggedUser);
     }
 
     @Operation(summary = "Returns list with all the posts.")
@@ -108,7 +111,7 @@ public class PostController {
     })
     @GetMapping("/post")
     //@JsonView({View.PostView.PostListView.class}) todo -- No sale porque esta dentro de un pageable
-    public Page<List<PostResponse>> getAllPosts(/*@PageableDefault(page = 0, size = 10)*/@PageableDefault Pageable pageable){
+    public Page<List<PostResponse>> getAllPosts(/*@PageableDefault(page = 0, size = 10)*/@PageableDefault(sort = "dateTime", direction = Sort.Direction.DESC)Pageable pageable){
         return postService.findAll(pageable);
     }
 
@@ -187,7 +190,8 @@ public class PostController {
     })
     @GetMapping("/auth/post")
     //@JsonView({View.PostView.PostListView.class})
-    public Page<List<PostResponse>> getAllUserPost(@PageableDefault Pageable pageable, @AuthenticationPrincipal User user){
+    public Page<List<PostResponse>> getAllUserPost(@PageableDefault(sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                                                   @AuthenticationPrincipal User user){
         return postService.findAllByUser(pageable, user.getId());
     }
 
@@ -234,8 +238,10 @@ public class PostController {
     @JsonView({View.PostView.PostWithEverythingView.class})
     @PreAuthorize("@postRepository.existsById(#id)? @postRepository.findById(#id).get().user.username == authentication.principal.getUsername() : false")
     @PutMapping("auth/post/{id}")
-    public PostResponse editPost(@PathVariable Long id, @Valid @RequestBody CreatePostRequest editedPost){
-        return postService.editPost(id, editedPost);
+    public PostResponse editPost(@PathVariable Long id,
+                                 @Valid @RequestPart("post") CreatePostRequest editedPost,
+                                 @RequestPart("file") MultipartFile file){
+        return postService.editPost(id, editedPost, file);
     }
     //TODO-- Preguntar si el preauthorize está bien
 

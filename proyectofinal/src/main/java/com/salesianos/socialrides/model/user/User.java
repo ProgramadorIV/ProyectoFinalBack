@@ -63,6 +63,8 @@ public class User implements UserDetails {
     private String username;
 
     //AQUI VAN LOS ATRIBUTOS EXTRA
+
+    private String avatar;
     private String password;
 
     private String name;
@@ -145,3 +147,4 @@ public class User implements UserDetails {
         return enabled;
     }
 }
+ 

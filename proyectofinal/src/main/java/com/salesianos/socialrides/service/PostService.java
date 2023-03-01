@@ -3,6 +3,8 @@ package com.salesianos.socialrides.service;
 import com.salesianos.socialrides.exception.post.NoPostsException;
 import com.salesianos.socialrides.exception.post.NoUserPostsException;
 import com.salesianos.socialrides.exception.post.PostNotFoundException;
+import com.salesianos.socialrides.exception.user.UserNotFoundException;
+import com.salesianos.socialrides.files.service.StorageService;
 import com.salesianos.socialrides.model.post.Post;
 import com.salesianos.socialrides.model.post.dto.CreatePostRequest;
 import com.salesianos.socialrides.model.post.dto.PostResponse;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
@@ -23,6 +26,10 @@ import java.util.UUID;
 public class PostService {
 
     private final PostRepository postRepository;
+
+    private final UserService userService;
+
+    private final StorageService storageService;
 
     public Post findById(Long id){
         return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -46,15 +53,19 @@ public class PostService {
         return postRepository.findPost(id).orElseThrow(() -> new PostNotFoundException(id));
     }
 
-    public ResponseEntity<PostResponse> createPost(CreatePostRequest newPost, User u){
+    public ResponseEntity<PostResponse> createPost(CreatePostRequest newPost, MultipartFile file, User u){
+
+        String filename = storageService.store(file);
 
         Post post = Post.builder()
-                        .img(newPost.getImg()==null? null: newPost.getImg())
+                        .img(filename)
                         .title(newPost.getTitle())
                         .description(newPost.getDescription())
                         .location(newPost.getLocation())
                         .build();
-        post.addToUser(u);
+        User user = userService.findById(u.getId())
+                .orElseThrow(UserNotFoundException::new);
+        post.addToUser(user);
         postRepository.save(post);
 
         return ResponseEntity.created(ServletUriComponentsBuilder
@@ -76,11 +87,13 @@ public class PostService {
         return posts;
     }
 
-    public PostResponse editPost(Long id, CreatePostRequest editedPost){
+    public PostResponse editPost(Long id, CreatePostRequest editedPost, MultipartFile file){
+
+        String filename = storageService.store(file);
 
         return PostResponse.of(postRepository.findById(id).map(post -> {
             post.setTitle(editedPost.getTitle());
-            post.setImg(editedPost.getImg());
+            post.setImg(filename);
             post.setDescription(editedPost.getDescription());
             post.setLocation(editedPost.getLocation());
             return postRepository.save(post);

@@ -31,11 +31,21 @@ public class UserResponse {
     protected String username;
 
     @JsonView({View.UserView.ProfileView.class,
-            View.UserView.DetailsView.class})
+            View.UserView.CreatedView.class,
+            View.UserView.DetailsView.class
+    })
+    protected String avatar;
+
+    @JsonView({View.UserView.ProfileView.class,
+            View.UserView.DetailsView.class,
+            View.UserView.CreatedView.class
+    })
     protected String name;
 
     @JsonView({View.UserView.ProfileView.class,
-            View.UserView.DetailsView.class})
+            View.UserView.DetailsView.class,
+            View.UserView.CreatedView.class
+    })
     protected String surname;
 
     @JsonView({View.UserView.ProfileView.class,
@@ -59,6 +69,7 @@ public class UserResponse {
     public static UserResponse toDetails(User user){
         return UserResponse.builder()
                 .email(user.getEmail())
+                .avatar(user.getAvatar())
                 .name(user.getName())
                 .surname(user.getSurname())
                 .birthday(user.getBirthday())
@@ -70,6 +81,9 @@ public class UserResponse {
         return UserResponse.builder()
                 .id(user.getId().toString())
                 .username(user.getUsername())
+                .avatar(user.getAvatar())
+                .name(user.getName())
+                .surname(user.getSurname())
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .build();
@@ -79,6 +93,7 @@ public class UserResponse {
         return UserResponse.builder()
                 .id(user.getId().toString())
                 .username(user.getUsername())
+                .avatar(user.getAvatar())
                 .name(user.getName())
                 .surname(user.getSurname())
                 .birthday(user.getBirthday())

@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -52,18 +54,20 @@ public class UserController {
 
     @JsonView(View.UserView.CreatedView.class)
     @PostMapping("/auth/register")
-    public ResponseEntity<UserResponse> createUserWithUserRole(@Valid @RequestBody CreateUserRequest newUser){
+    public ResponseEntity<UserResponse> createUserWithUserRole(@Valid @RequestPart("user") CreateUserRequest newUser,
+                                                               @RequestPart("file")MultipartFile file){
 
-        User user = userService.createUserWithUserRole(newUser);
+        User user = userService.createUserWithUserRole(newUser, file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.fromUser(user));
     }
 
     @JsonView(View.UserView.CreatedView.class)
     @PostMapping("/auth/register/admin")
-    public ResponseEntity<UserResponse> createUserWithAdminRole(@Valid @RequestBody CreateUserRequest newUser){
+    public ResponseEntity<UserResponse> createUserWithAdminRole(@Valid @RequestPart("user") CreateUserRequest newUser,
+                                                                @RequestPart("file")MultipartFile file){
 
-        User user = userService.createUserWithAdminRole(newUser);
+        User user = userService.createUserWithAdminRole(newUser, file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.fromUser(user));
     }
@@ -196,6 +200,7 @@ public class UserController {
                     schema = @Schema(implementation = EditUserRequest.class),
                     examples = @ExampleObject( value = """
                                 {
+                                     "avatar": "avatar.img",
                                      "name": "Jonathan",
                                      "surname": "Infante",
                                      "email": "hola@gmail.com",
@@ -206,8 +211,10 @@ public class UserController {
     )
     @JsonView({View.UserView.DetailsView.class})
     @PutMapping("/auth/user/edit")
-    public UserResponse editUser(@Valid @RequestBody EditUserRequest editUserRequest, @AuthenticationPrincipal User loggedUser){
-        return userService.edit(editUserRequest, loggedUser);
+    public UserResponse editUser(@Valid @RequestPart("user") EditUserRequest editUserRequest,
+                                 @RequestPart("file") MultipartFile file,
+                                 @AuthenticationPrincipal User loggedUser){
+        return userService.edit(editUserRequest, file, loggedUser);
     }
 
     @Operation(summary = "Returns list with all the liked posts by the user.")
@@ -245,7 +252,8 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/auth/user/like")
-    public Page<List<PostResponse>> getLikedPosts(@PageableDefault Pageable pageable, @AuthenticationPrincipal User user){
+    public Page<List<PostResponse>> getLikedPosts(@PageableDefault(sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                                                  @AuthenticationPrincipal User user){
         return userService.getLikedPosts(pageable, user.getId());
     }
 
