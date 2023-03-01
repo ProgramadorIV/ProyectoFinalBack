@@ -1,0 +1,482 @@
+{
+	"info": {
+		"_postman_id": "711a5681-1d11-4c60-8abd-19ae1e06070d",
+		"name": "Social Rides",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23783626"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "change password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\": \"Antonio90!\",\r\n    \"newPassword\": \"Jimenez9!\",\r\n    \"verifyNewPassword\": \"Jimenez9!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/user/changePassword",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"user",
+								"changePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", json.token);\r",
+									"pm.collectionVariables.set(\"refresh_token\", json.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Admin\",\r\n    \"password\": \"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/login",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/user/Antonio",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"user",
+								"Antonio"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit user details",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user",
+									"value": "{\n    \"name\": \"Jonathan\",\n    \"surname\": \"Infante\",\n    \"email\": \"hola@gmail.com\",\n    \"birthday\": \"2021-12-13\"\n}",
+									"contentType": "application/vnd.api+json",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Usuario/Pictures/Saved Pictures/sageCalva.webp"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/user/edit",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"user",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get liked posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/auth/user/like",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"user",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get my profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/auth/user/profile",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Register admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user",
+									"value": "{\n    \"username\": \"juan\",\n    \"password\": \"Antonio90!\",\n    \"verifyPassword\": \"Antonio90!\",\n    \"email\": \"juan@gmail.com\",\n    \"name\": \"Juan\",\n    \"surname\": \"Martín\",\n    \"birthday\": \"2021-12-13\"\n}",
+									"contentType": "application/vnd.api+json",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Usuario/Pictures/Saved Pictures/sageCalva.webp"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/register/admin",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"admin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Post",
+			"item": [
+				{
+					"name": "create post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "post",
+									"value": "{\n    \"title\": \"Escaleritas potentes\",\n    \"description\": \"Pues un classic set de 12 escaleras con barra.\",\n    \"location\": \"1.2,1.4\"\n}",
+									"contentType": "application/vnd.api+json",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Usuario/Pictures/Saved Pictures/sageCalva.webp"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/post/",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"post",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/post/",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"post",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get one post",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/post/1",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update post",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "post",
+									"value": "{\n    \"title\": \"Escaleritas potentes\",\n    \"description\": \"Pues un classic set de 12 escaleras con barra.\",\n    \"location\": \"1.2,1.5\"\n}",
+									"contentType": "application/vnd.api+json",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Usuario/Pictures/Saved Pictures/sageCalva.webp"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL_BASE}}/auth/post/1",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get posts from user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/auth/post",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL_BASE}}/auth/post/1",
+							"host": [
+								"{{URL_BASE}}"
+							],
+							"path": [
+								"auth",
+								"post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "{\n    \"username\": \"antonio\",\n    \"password\": \"Antonio90!\",\n    \"verifyPassword\": \"Antonio90!\",\n    \"email\": \"antonio2@gmail.com\",\n    \"name\": \"Antonio\",\n    \"surname\": \"Jiménez\",\n    \"birthday\": \"1998-09-21\"\n}",
+							"contentType": "application/vnd.api+json",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Usuario/Pictures/Saved Pictures/sageCalva.webp"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{URL_BASE}}/auth/register",
+					"host": [
+						"{{URL_BASE}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var json = pm.response.json();\r",
+							"pm.collectionVariables.set(\"token\", json.token);\r",
+							"pm.collectionVariables.set(\"refresh_token\", json.refreshToken);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\": \"{{refresh_token}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL_BASE}}/refreshtoken",
+					"host": [
+						"{{URL_BASE}}"
+					],
+					"path": [
+						"refreshtoken"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL_BASE",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		}
+	]
+}

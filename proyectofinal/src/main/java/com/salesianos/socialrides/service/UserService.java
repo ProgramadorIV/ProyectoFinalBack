@@ -2,6 +2,7 @@ package com.salesianos.socialrides.service;
 
 import com.salesianos.socialrides.exception.user.NotLikedPostsException;
 import com.salesianos.socialrides.exception.user.UserNotFoundException;
+import com.salesianos.socialrides.files.service.StorageService;
 import com.salesianos.socialrides.model.post.dto.PostResponse;
 import com.salesianos.socialrides.model.user.User;
 import com.salesianos.socialrides.model.user.UserRole;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -27,6 +29,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+    private final StorageService storageService;
 
     public Optional<User> findById(UUID id){return userRepository.findById(id);}
 
@@ -40,10 +43,14 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(username));
     }
 
-    public User createUser(CreateUserRequest createUserRequest, EnumSet<UserRole> roles){
+    public User createUser(CreateUserRequest createUserRequest, MultipartFile file, EnumSet<UserRole> roles){
+
+        String filename = storageService.store(file);
+
         User user = User.builder()
                 .username(createUserRequest.getUsername())
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
+                .avatar(filename)
                 .name(createUserRequest.getName())
                 .surname(createUserRequest.getSurname())
                 .email(createUserRequest.getEmail())
@@ -54,12 +61,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User createUserWithUserRole(CreateUserRequest createUserRequest){
-        return createUser(createUserRequest, EnumSet.of(UserRole.USER));
+    public User createUserWithUserRole(CreateUserRequest createUserRequest, MultipartFile file){
+        return createUser(createUserRequest, file, EnumSet.of(UserRole.USER));
     }
 
-    public User createUserWithAdminRole(CreateUserRequest createUserRequest){
-        return createUser(createUserRequest, EnumSet.of(UserRole.ADMIN));
+    public User createUserWithAdminRole(CreateUserRequest createUserRequest, MultipartFile file){
+        return createUser(createUserRequest, file, EnumSet.of(UserRole.ADMIN));
     }
 
     public Optional<User> editPassword(UUID userId, String newPassword){
@@ -70,10 +77,13 @@ public class UserService {
                 }).or(Optional::empty);
     }
 
-    public UserResponse edit(EditUserRequest editedUser, User user) {
+    public UserResponse edit(EditUserRequest editedUser, MultipartFile file, User user) {
+
+        String filename = storageService.store(file);
 
         return UserResponse.toDetails(userRepository.findById(user.getId())
                 .map(u -> {
+                    u.setAvatar(filename);
                     u.setName(editedUser.getName());
                     u.setSurname(editedUser.getSurname());
                     u.setEmail(editedUser.getEmail());
